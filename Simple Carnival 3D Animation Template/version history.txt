@@ -1,0 +1,31 @@
+##### BEGIN GPL LICENSE BLOCK #####
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; If not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+##### END GPL LICENSE BLOCK #####
+
+Title: Simple Carnival 3D Animation Template
+Author: Jeff Boller (http://3d.simplecarnival.com)
+Description: A template for using the Simple Carnival Stereoscopic Camera and related software. 
+             More detailed documentation is forthcoming.
+Requirements: Blender 2.73a (http://www.blender.org), simple_carnival_stereoscopic_camera.py (http://3d.simplecaarnival.com)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Modifications
+;;
+;; 64 - 3/19/15 - First public release on GitHub
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+

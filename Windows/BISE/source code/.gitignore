@@ -1,0 +1,5 @@
+# Ignore .suo files in this directory
+*.suo
+
+# But don't ignore this file
+!.gitignore
