@@ -15,3 +15,4 @@
 *.csproj eol=crlf
 *.cs eol=crlf
 *.settings eol=crlf
+*.py eol=crlf
