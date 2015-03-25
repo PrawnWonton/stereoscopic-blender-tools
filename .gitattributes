@@ -8,3 +8,10 @@
 
 
 *.txt eol=crlf
+*.resx eol=crlf
+*.bise eol=crlf
+*.iss eol=crlf
+*.sln eol=crlf
+*.csproj eol=crlf
+*.cs eol=crlf
+*.settings eol=crlf
