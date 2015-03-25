@@ -1,2 +1,4 @@
 # We need GitHub to keep the endlines Windows-friendly
-* eol=crlf
+
+*.ahk *.au3 eol=crlf
+
