@@ -26,6 +26,8 @@
 # VERSION HISTORY
 #
 # 1.0.0 - 6/6/15 - Created
+# 1.0.1 - 6/7/15 - Fixed a conflict with simple_carnival_select_children_and_parent add-on
+#                  Removed the "File->Save File No Confirmation" menu option, since it's not needed
 #
 ###############################################################################################################################################################
 
@@ -46,7 +48,7 @@ import re
 
 class save_file_no_confirmaton(bpy.types.Operator):
     """Ctrl+S saves the current file without popping up Blender's annoying tiny confirmation dialog box."""
-    bl_idname = "object.select_random"  # I'm not sure if this is correct -- I had to pick out some existing API call. The Select Random menu option still works, FWIW.
+    bl_idname = "object.logic_bricks_copy"  # I'm not sure if this is correct -- I had to pick out some existing API call. 
     bl_label = "Save File No Confirmation"
 
     def execute(self, context):
@@ -76,7 +78,6 @@ def register():
     addon_keymaps.append((km, kmi))
 
     bpy.utils.register_class(save_file_no_confirmaton)
-    bpy.types.INFO_MT_file.append(draw_func)
 
 def unregister():
     # remove keymap entry
@@ -85,7 +86,6 @@ def unregister():
     addon_keymaps.clear()
 
     bpy.utils.unregister_class(save_file_no_confirmaton)
-    bpy.types.INFO_MT_file.remove(draw_func)
 
 if __name__ == "__main__":
     register()
