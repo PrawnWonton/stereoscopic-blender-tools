@@ -61,6 +61,8 @@ namespace BISE
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuRenderImageSequence = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuRecentFiles = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuImportImages = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,8 +81,6 @@ namespace BISE
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuRecentFiles = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbImage)).BeginInit();
             this.statusStrip1.SuspendLayout();
@@ -126,7 +126,7 @@ namespace BISE
             // 
             this.mnuNewProject.Name = "mnuNewProject";
             this.mnuNewProject.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.mnuNewProject.Size = new System.Drawing.Size(231, 22);
+            this.mnuNewProject.Size = new System.Drawing.Size(252, 22);
             this.mnuNewProject.Text = "&New Project...";
             this.mnuNewProject.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click);
             // 
@@ -134,20 +134,20 @@ namespace BISE
             // 
             this.mnuOpenProject.Name = "mnuOpenProject";
             this.mnuOpenProject.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.mnuOpenProject.Size = new System.Drawing.Size(231, 22);
+            this.mnuOpenProject.Size = new System.Drawing.Size(252, 22);
             this.mnuOpenProject.Text = "&Open Project...";
             this.mnuOpenProject.Click += new System.EventHandler(this.openProjectToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(228, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(249, 6);
             // 
             // mnuSaveProject
             // 
             this.mnuSaveProject.Name = "mnuSaveProject";
             this.mnuSaveProject.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.mnuSaveProject.Size = new System.Drawing.Size(231, 22);
+            this.mnuSaveProject.Size = new System.Drawing.Size(252, 22);
             this.mnuSaveProject.Text = "&Save Project";
             this.mnuSaveProject.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -155,45 +155,57 @@ namespace BISE
             // 
             this.mnuSaveProjectAs.Name = "mnuSaveProjectAs";
             this.mnuSaveProjectAs.ShortcutKeys = System.Windows.Forms.Keys.F12;
-            this.mnuSaveProjectAs.Size = new System.Drawing.Size(231, 22);
+            this.mnuSaveProjectAs.Size = new System.Drawing.Size(252, 22);
             this.mnuSaveProjectAs.Text = "Save Project &As...";
             this.mnuSaveProjectAs.Click += new System.EventHandler(this.saveProjectAsToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(228, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(249, 6);
             // 
             // mnuProjectProperties
             // 
             this.mnuProjectProperties.Name = "mnuProjectProperties";
             this.mnuProjectProperties.ShortcutKeys = System.Windows.Forms.Keys.F4;
-            this.mnuProjectProperties.Size = new System.Drawing.Size(231, 22);
+            this.mnuProjectProperties.Size = new System.Drawing.Size(252, 22);
             this.mnuProjectProperties.Text = "&Project Properties...";
             this.mnuProjectProperties.Click += new System.EventHandler(this.projectPropertiesToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(228, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(249, 6);
             // 
             // mnuRenderImageSequence
             // 
             this.mnuRenderImageSequence.Name = "mnuRenderImageSequence";
-            this.mnuRenderImageSequence.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
-            this.mnuRenderImageSequence.Size = new System.Drawing.Size(231, 22);
+            this.mnuRenderImageSequence.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt)
+                        | System.Windows.Forms.Keys.R)));
+            this.mnuRenderImageSequence.Size = new System.Drawing.Size(252, 22);
             this.mnuRenderImageSequence.Text = "Render &Image Sequence";
             this.mnuRenderImageSequence.Click += new System.EventHandler(this.renderImageSequenceToolStripMenuItem_Click);
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(228, 6);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(249, 6);
+            // 
+            // mnuRecentFiles
+            // 
+            this.mnuRecentFiles.Name = "mnuRecentFiles";
+            this.mnuRecentFiles.Size = new System.Drawing.Size(252, 22);
+            this.mnuRecentFiles.Text = "&Recent Files";
+            // 
+            // toolStripMenuItem8
+            // 
+            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(249, 6);
             // 
             // mnuExit
             // 
             this.mnuExit.Name = "mnuExit";
-            this.mnuExit.Size = new System.Drawing.Size(231, 22);
+            this.mnuExit.Size = new System.Drawing.Size(252, 22);
             this.mnuExit.Text = "E&xit";
             this.mnuExit.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -350,17 +362,6 @@ namespace BISE
             this.splitContainer1.Size = new System.Drawing.Size(745, 477);
             this.splitContainer1.SplitterDistance = 248;
             this.splitContainer1.TabIndex = 5;
-            // 
-            // toolStripMenuItem8
-            // 
-            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
-            this.toolStripMenuItem8.Size = new System.Drawing.Size(228, 6);
-            // 
-            // mnuRecentFiles
-            // 
-            this.mnuRecentFiles.Name = "mnuRecentFiles";
-            this.mnuRecentFiles.Size = new System.Drawing.Size(231, 22);
-            this.mnuRecentFiles.Text = "&Recent Files";
             // 
             // frmMain
             // 
