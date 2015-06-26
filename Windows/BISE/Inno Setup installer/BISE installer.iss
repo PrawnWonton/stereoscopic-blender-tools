@@ -25,11 +25,12 @@
 ;; Modifications
 ;;
 ;; 1.0.0 - 3/19/15 - First public release on GitHub
+;; 1.1.0 - 6/26/15 - Handles BISE 3.0
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #define MyAppName "BISE"
-#define MyAppVersion "2.0"
+#define MyAppVersion "3.0"
 #define MyAppPublisher "Jeff Boller"
 #define MyAppURL "http://3d.simplecarnival.com"
 #define MyAppExeName "BISE.exe"

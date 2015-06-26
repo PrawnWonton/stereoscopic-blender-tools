@@ -18,9 +18,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 Title: BISE
 Author: Jeff Boller (http://3d.simplecarnival.com)
-Description: BISE stands for Blender Image Sequence Editor. A tool for creating a Blender image sequence (with transparency) from 
-             individual PNG files. Intended to be used with the Simple Carnival Import Imageseq As Plane Blender addon. Detailed 
-			 documentation is forthcoming.
+Description: BISE stands for Blender Image Sequence Editor. A tool for creating a Blender image sequence from individual PNG files. 
+             Intended to be used with the Simple Carnival Import Imageseq As Plane Blender add-on. 
 Requirements: Microsoft Visual Studio 2010 C# Express (http://www.microsoft.com)
 
 /****************************************************************************************************************************************
@@ -36,5 +35,6 @@ Requirements: Microsoft Visual Studio 2010 C# Express (http://www.microsoft.com)
 ** 1.7 - 12/2/2014 - When you create a new BISE project, BISE creates the source and output directories if they don't exist. Also, BISE 
 **                   creates the output filename root based on the directory name.
 ** 2.0 - 3/19/15 - First public release on GitHub
+** 3.0 - 6/26/15 - Removed alpha file creation, since it won't be needed with the new version of Import imageseq As Plane.
 **
 ****************************************************************************************************************************************/

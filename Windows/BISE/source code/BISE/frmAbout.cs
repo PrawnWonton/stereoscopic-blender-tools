@@ -39,7 +39,7 @@ namespace BISE
         private void frmAbout_Load(object sender, EventArgs e)
         {
             lblInfo.Text = "Blender Image Sequence Editor v" + Application.ProductVersion + "\n\n" +
-                "A tool for creating a Blender image sequence (with transparency) from individual PNG files. Intended to be used with the Simple Carnival Import Imageseq As Plane Blender addon.";
+                "A tool for creating a Blender image sequence from individual PNG files. Intended to be used with the Simple Carnival Import Imageseq As Plane Blender addon.";
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

@@ -59,7 +59,6 @@ namespace BISE
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuProjectProperties = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuBakeSourceAlphaFiles = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuRenderImageSequence = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
@@ -114,7 +113,6 @@ namespace BISE
             this.toolStripMenuItem4,
             this.mnuProjectProperties,
             this.toolStripMenuItem3,
-            this.mnuBakeSourceAlphaFiles,
             this.mnuRenderImageSequence,
             this.toolStripMenuItem5,
             this.mnuRecentFiles,
@@ -178,14 +176,6 @@ namespace BISE
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
             this.toolStripMenuItem3.Size = new System.Drawing.Size(228, 6);
-            // 
-            // mnuBakeSourceAlphaFiles
-            // 
-            this.mnuBakeSourceAlphaFiles.Name = "mnuBakeSourceAlphaFiles";
-            this.mnuBakeSourceAlphaFiles.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.B)));
-            this.mnuBakeSourceAlphaFiles.Size = new System.Drawing.Size(231, 22);
-            this.mnuBakeSourceAlphaFiles.Text = "&Bake Source Alpha Files";
-            this.mnuBakeSourceAlphaFiles.Click += new System.EventHandler(this.bakeSourceAlphaFilesToolStripMenuItem_Click);
             // 
             // mnuRenderImageSequence
             // 
@@ -429,7 +419,6 @@ namespace BISE
         private System.Windows.Forms.ToolStripMenuItem mnuMoveImageUp;
         private System.Windows.Forms.ToolStripMenuItem mnuMoveImageDown;
         private System.Windows.Forms.ToolStripMenuItem mnuNewProject;
-        private System.Windows.Forms.ToolStripMenuItem mnuBakeSourceAlphaFiles;
         private System.Windows.Forms.ToolStripMenuItem mnuDeleteFrame;
         private System.Windows.Forms.ToolStripMenuItem mnuHelp;
         private System.Windows.Forms.ToolStripMenuItem mnuAboutBISE;

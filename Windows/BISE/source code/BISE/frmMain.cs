@@ -154,7 +154,6 @@ namespace BISE
             mnuSaveProject.Enabled = isEnabled;
             mnuSaveProjectAs.Enabled = isEnabled;
             mnuProjectProperties.Enabled = isEnabled;
-            mnuBakeSourceAlphaFiles.Enabled = isEnabled;
             mnuRenderImageSequence.Enabled = isEnabled;
             mnuImportImages.Enabled = isEnabled;
             mnuClearImage.Enabled = isEnabled;
@@ -252,16 +251,10 @@ namespace BISE
             toolStripProgressBar1.Minimum = _frameStart;
             toolStripProgressBar1.Maximum = _frameEnd;
 
-            // Make our source "alpha" directory if it doesn't exist.
-            if (!Directory.Exists(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha"))
+            // Make our output directory if it doesn't already exist.
+            if (!Directory.Exists(Path.Combine(Path.GetDirectoryName(_projectFilename), _outputDir)))
             {
-                Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha");
-            }
-
-            // Make our output "alpha" directory (and output directory!) if it doesn't already exist.
-            if (!Directory.Exists(Path.Combine(Path.GetDirectoryName(_projectFilename), _outputDir) + @"\alpha"))
-            {
-                Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(_projectFilename), _outputDir) + @"\alpha");
+                Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(_projectFilename), _outputDir));
             }
 
             string strMostRecentName = "";
@@ -274,24 +267,12 @@ namespace BISE
                 Application.DoEvents();
                 if ((item.frameNum == i) && (item.fileName != null))
                 {
-                    // Make sure there's an alpha for this. If not, we must bake it.
-                    if (!DoesFileHaveSourceAlpha(item.fileName))
-                    {
-                        toolStripStatusLabel1.Text = "Baking source alpha for " + _sourceDir + @"\alpha\" + item.fileName;
-                        Application.DoEvents();
-                        BakeSourceAlpha(item.fileName);
-                        toolStripStatusLabel1.Text = "Writing " + _outputFilenameRoot + " " + i.ToString("D4") + ".png";
-                        Application.DoEvents();
-                    }
-
                     File.Copy(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\" + item.fileName, Path.Combine(Path.GetDirectoryName(_projectFilename), _outputDir) + @"\" + _outputFilenameRoot + " " + i.ToString("D4") + ".png", true);
-                    File.Copy(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha\" + item.fileName, Path.Combine(Path.GetDirectoryName(_projectFilename), _outputDir) + @"\alpha\" + _outputFilenameRoot + " " + i.ToString("D4") + ".png", true);
                     strMostRecentName = item.fileName;
                 }
                 else if (strMostRecentName != "")
                 {
                     File.Copy(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\" + strMostRecentName, Path.Combine(Path.GetDirectoryName(_projectFilename), _outputDir) + @"\" + _outputFilenameRoot + " " + i.ToString("D4") + ".png", true);
-                    File.Copy(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha\" + strMostRecentName, Path.Combine(Path.GetDirectoryName(_projectFilename), _outputDir) + @"\alpha\" + _outputFilenameRoot + " " + i.ToString("D4") + ".png", true);
                 }
             }
 
@@ -872,125 +853,6 @@ namespace BISE
                 _projectFilename = fileToLoad;
                 OpenProject();
             }
-        }
-
-        private void bakeSourceAlphaFilesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            toolStripProgressBar1.Visible = true;
-            toolStripProgressBar1.Minimum = _frameStart;
-            toolStripProgressBar1.Maximum = _frameEnd;
-
-            // Make our source "alpha" directory if it doesn't exist.
-            if (!Directory.Exists(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha"))
-            {
-                Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha");
-            }
-
-            for (int i = _frameStart; i <= _frameEnd; i++)
-            {
-                toolStripProgressBar1.Value = i;
-                frameInfo item = _frameList.Find(c => c.frameNum == i);
-                toolStripStatusLabel1.Text = "Baking " + item.fileName;
-                Application.DoEvents();
-                if ((item.frameNum == i) && (item.fileName != null))
-                {
-                    if (!DoesFileHaveSourceAlpha(item.fileName))
-                    {
-                        BakeSourceAlpha(item.fileName);
-                    }
-                } 
-            }
-
-            toolStripStatusLabel1.Text = "Ready";
-            MessageBox.Show("Baked images to " + Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha\", "Done!");
-            toolStripProgressBar1.Value = _frameStart;
-            toolStripProgressBar1.Visible = false;
-        }
-
-        private bool DoesFileHaveSourceAlpha(string fileName)
-        {
-            if (File.Exists(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha\" + fileName))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-
-        private void BakeSourceAlpha(string fileName)
-        {
-            // We only make mask images for images that don't exist. We don't check for "correctness"
-            // Now write the mask image based on the alpha channel.
-            Bitmap image = (Bitmap)Image.FromFile(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\" + fileName);
-
-            //Get the bitmap data
-            var bitmapData = image.LockBits(
-                new Rectangle(0, 0, image.Width, image.Height),
-                ImageLockMode.ReadWrite,
-                image.PixelFormat
-            );
-
-            //Initialize an array for all the image data
-            byte[] imageBytes = new byte[bitmapData.Stride * image.Height];
-
-            //Copy the bitmap data to the local array
-            Marshal.Copy(bitmapData.Scan0, imageBytes, 0, imageBytes.Length);
-
-            //Unlock the bitmap
-            image.UnlockBits(bitmapData);
-
-            //Find pixelsize
-            int pixelSize = Image.GetPixelFormatSize(image.PixelFormat);
-
-            // An example on how to use the pixels, lets make a copy
-            int x = 0;
-            int y = 0;
-            var bitmap = new Bitmap(image.Width, image.Height);
-
-            //Loop pixels
-            int channelsToCopy = pixelSize / 8;
-            for (int j = 0; j < imageBytes.Length; j += channelsToCopy)
-            {
-                //Copy the bits into a local array
-                var pixelData = new byte[4];
-                Array.Copy(imageBytes, j, pixelData, 0, channelsToCopy);
-
-                if (channelsToCopy == 4)
-                {
-                    // We have an alpha channel.
-                    //Get the color of a pixel
-                    var color = Color.FromArgb(pixelData[3], pixelData[0], pixelData[1], pixelData[2]);
-
-                    //Set the color of a pixel
-                    bitmap.SetPixel(x, y, Color.FromArgb(255, 255 - color.A, 255 - color.A, 255 - color.A));
-                }
-                else // channelsToCopy == 3
-                {
-                    // There is no alpha channel. Go pure black.
-                    bitmap.SetPixel(x, y, Color.Black);
-                }
-
-                //Map the 1D array to (x,y)
-                x++;
-                if (x >= image.Width)
-                {
-                    x = 0;
-                    y++;
-                    if (y >= image.Height)
-                    {
-                        // I'm not sure how this can happen, but I've seen it with a 711x396 image with no alpha channel. When you do the
-                        // math, it turns out that you have a height of 396.5569620253165 pixels. Not sure how that extra half pixel value 
-                        // ends up in there, but it's possible. So get out of here.
-                        break;
-                    }
-                }
-            }
-
-            // Bake the local alpha
-            bitmap.Save(Path.Combine(Path.GetDirectoryName(_projectFilename), _sourceDir) + @"\alpha\" + fileName);
         }
 
         private void deleteImageandShiftLaterImagesBackToolStripMenuItem_Click(object sender, EventArgs e)
