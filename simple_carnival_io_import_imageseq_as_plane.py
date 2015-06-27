@@ -385,7 +385,7 @@ class IMPORT_OT_imageseq_as_plane(Operator, AddObjectHelper):
         plane.dimensions = x, y, 0.0
         plane.name = img_seq_name
         bpy.ops.object.transform_apply(scale=True)
-        bpy.context.object.rotation_euler[0] = 1.5708 # Import at a rotation of x=90 so that it will be facing the camera on The Simple Carnival animation template
+        bpy.context.object.rotation_euler[0] = 0 # Import at a rotation of x=0 so that it will be facing the camera on Better Blender and The Simple Carnival animation template (Y is up)
         plane.data.uv_textures.new()
         plane.data.materials.append(material)
         plane.data.uv_textures[0].data[0].image = img
