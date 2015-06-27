@@ -30,6 +30,7 @@
 # 2.3.2 - 11/24/14 - Made it so that it pulls in the BISE directory name (above the output directory) and names the image sequence object with the same name
 #                    (kind of like Blender's import images as planes).
 # 2.3.3 - 3/19/15 - First public release on GitHub.
+# 3.0.0 - 6/26/15 - Imports transparent PNG images without having to have a separate alpha image file.
 ###############################################################################################################################################################
 
 bl_info = {
@@ -315,7 +316,6 @@ class IMPORT_OT_imageseq_as_plane(Operator, AddObjectHelper):
 #             self.report({'INFO'}, x)
 
         images = (load_image(path, directory) for path in import_list)
-        images_transparent = (load_image(path, directory2 + "alpha\\") for path in import_list2)
 
         # Figure out the name of the BISE directory (the level above 'output') so we can give the image sequence a name.
         directory_list = directory.split("\\")
@@ -331,22 +331,13 @@ class IMPORT_OT_imageseq_as_plane(Operator, AddObjectHelper):
 
         myCount=len(self.files) 
 
-#             for x in self.files:
-#                 self.report({'INFO'}, str(x))
-
-#             materials = (self.create_cycles_material(img,myCount) for img in images)
         i=0
         imgWidth = 0
         imgHeight = 0
         for img in images:
             if i==0:                     
                 imgWidth, imgHeight = img.size
-                j=0
-                for img_transparent in images_transparent:
-                    if j==0:                         
-                        self.report({'INFO'}, str(img))
-                        materials = self.create_cycles_material(img,img_transparent,myCount) # only make one material
-                    j += 1
+                materials = self.create_cycles_material(img,myCount) # only make one material
             i += 1
 
 #        planes = tuple(self.create_image_plane(context, mat) for mat in materials)
@@ -493,10 +484,9 @@ class IMPORT_OT_imageseq_as_plane(Operator, AddObjectHelper):
 
     #--------------------------------------------------------------------------
     # Cycles
-    def create_cycles_material(self, image, image_transparent, totalNumOfImages):
+    def create_cycles_material(self, image, totalNumOfImages):
         name_compat = bpy.path.display_name_from_filepath(image.filepath)
         self.report({'INFO'}, 'image.filepath: ' + str(image.filepath))
-        self.report({'INFO'}, 'image_transparent.filepath: ' + str(image_transparent.filepath))
         self.report({'INFO'}, 'name_compat: ' + str(name_compat))
         material = None
         for mat in bpy.data.materials:
@@ -514,12 +504,12 @@ class IMPORT_OT_imageseq_as_plane(Operator, AddObjectHelper):
 
 
         bsdf_diffuse = node_tree.nodes.new('ShaderNodeBsdfDiffuse')
-        bsdf_transparent = node_tree.nodes.new('ShaderNodeBsdfTransparent')
-        add_shader = node_tree.nodes.new('ShaderNodeAddShader')
+        bsdf_transparent = node_tree.nodes.new('ShaderNodeBsdfTransparent') # Used for the actual image transparency
+        mix_shader_1 = node_tree.nodes.new('ShaderNodeMixShader') # Used for combining alpha and original images
         bsdf_transparent_fake = node_tree.nodes.new('ShaderNodeBsdfTransparent') # Used for setting the material transparency
-        mix_shader = node_tree.nodes.new('ShaderNodeMixShader') # Used for setting the material transparency
+        mix_shader_2 = node_tree.nodes.new('ShaderNodeMixShader') # Used for setting the material transparency
 
-        mix_shader.inputs['Fac'].default_value=1 # Set to fully opaque
+        mix_shader_2.inputs['Fac'].default_value=1 # Set to fully opaque
 
 
         tex_image = node_tree.nodes.new('ShaderNodeTexImage')
@@ -532,29 +522,17 @@ class IMPORT_OT_imageseq_as_plane(Operator, AddObjectHelper):
         tex_image.image_user.frame_duration = totalNumOfImages
         tex_image.image_user.use_cyclic = self.use_cyclic
 
+        node_tree.links.new(out_node.inputs[0], mix_shader_2.outputs[0])
+        node_tree.links.new(mix_shader_2.inputs[1], bsdf_transparent_fake.outputs[0])
+        node_tree.links.new(mix_shader_2.inputs[2], mix_shader_1.outputs[0])
 
-        tex_image_transparent = node_tree.nodes.new('ShaderNodeTexImage')
-        actual_img_transparent = bpy.data.images.load(str(image_transparent.filepath))
-        if (totalNumOfImages != 1): 
-            actual_img_transparent.source = 'SEQUENCE' # When you set this to image sequence, it will start with the first image in the directory no matter what.
-        tex_image_transparent.image = actual_img_transparent
-        tex_image_transparent.show_texture = True
-        tex_image_transparent.image_user.use_auto_refresh = 1
-        tex_image_transparent.image_user.frame_duration = totalNumOfImages
-        tex_image_transparent.image_user.use_cyclic = self.use_cyclic
-
-        node_tree.links.new(out_node.inputs[0], mix_shader.outputs[0])
-        node_tree.links.new(mix_shader.inputs[1], bsdf_transparent_fake.outputs[0])
-        node_tree.links.new(mix_shader.inputs[2], add_shader.outputs[0])
-
-        node_tree.links.new(add_shader.inputs[0], bsdf_diffuse.outputs[0])
-        node_tree.links.new(add_shader.inputs[1], bsdf_transparent.outputs[0])
+        node_tree.links.new(mix_shader_1.inputs['Fac'], tex_image.outputs["Alpha"])
+        node_tree.links.new(mix_shader_1.inputs[1], bsdf_transparent.outputs[0])
+        node_tree.links.new(mix_shader_1.inputs[2], bsdf_diffuse.outputs[0])
         node_tree.links.new(bsdf_diffuse.inputs[0], tex_image.outputs[0])
-        node_tree.links.new(bsdf_transparent.inputs[0], tex_image_transparent.outputs[0])
 
         auto_align_nodes(node_tree)
         bpy.data.images[image.name].source='SEQUENCE' 
-        bpy.data.images[image_transparent.name].source='SEQUENCE'
         return material
 
 
