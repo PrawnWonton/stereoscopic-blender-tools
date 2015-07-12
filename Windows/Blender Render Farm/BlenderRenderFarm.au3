@@ -45,6 +45,7 @@
 ;; 1.1.5 - 1/28/2015 - Changed the Blender process to blender-app.exe
 ;; 1.1.6 - 1/31/2015 - Made font smaller to fit all of the render computers.
 ;; 1.2.0 - 3/19/2015 - First public release on GitHub
+;; 1.3.0 - 7/12/2015 - Wipes out 0kb placeholders that are in placeholder subdirectories per the way 2.75 works with stereoscopic rendering
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -55,6 +56,7 @@
 #include <GUIListBox.au3>
 #include <GuiConstantsEx.au3>
 #include <Constants.au3>
+#include <Array.au3>
 
 Opt("SendKeyDelay", 10)
 
@@ -1038,22 +1040,177 @@ EndFunc
 
 Func Clear0KbPlaceholders($blenderFileLocation)
 	; Blender will place 0K placeholders in The Simple Carnival Animation Template's _PLACEHOLDERS directory for any images that are currently being created
-	; by a render computer. Once the image has been created, the placeholder is a bigger size (around 8K, I believe). If we stop a render before it's done,
-	; those 0K placeholder files will still be there. When you restart the render (assuming you don't want to pick up where you left off), it will skip over those
-	; 0K placeholder files, which means they won't be rendered. By erasing any 0K placeholders after canceling a render, this will force those in-progress frames
-	; to be rendered again the next time you start up the render.
+	; by a render computer. In >2.75, Once the image has been created, the placeholder is a bigger size (around 8K, I believe). It's also directly in the
+	; _PLACEHOLDERS directory. In 2.75, the placeholder is the actual rendered picture. AND it's in a subdirectory if you're rendering a stereo image (so we will
+	; need to search all subdirectories). If we stop a render before it's done, those 0K placeholder files will still be there. When you restart the render
+	; (assuming you don't want to pick up where you left off), it will skip over those 0K placeholder files, which means they won't be rendered. By erasing any
+	; 0K placeholders after canceling a render, this will force those in-progress frames to be rendered again the next time you start up the render.
+
 	Dim $szDrive, $szDir, $szFilename, $szExt
 	_PathSplit($blenderFileLocation, $szDrive, $szDir, $szFilename, $szExt)
 	$placeholderDirectory = $szDrive & $szDir & "_PLACEHOLDERS"
-
 	If DirGetSize($placeholderDirectory) = -1 Then return
-	$array = _FileListToArray($placeholderDirectory, "*.png")
+	$array = _RecFileListToArray($placeholderDirectory, "*.png", 1, 1, 1)
+
 	If (IsArray($array)) Then
 		$iMax = UBound($array)
 		for $i=1 to $iMax - 1
-			If FileGetSize($placeholderDirectory & "\" & $array[$i]) = 0 Then
-				FileDelete($placeholderDirectory & "\" & $array[$i])
+			If FileGetSize($array[$i]) = 0 Then
+				FileDelete($array[$i])
 			EndIf
 		Next
 	EndIf
+EndFunc
+
+
+; #FUNCTION# ====================================================================================================
+; Name...........: _RecFileListToArray
+; Description ...: Lists files and\or folders in a specified path (Similar to using Dir with the /B Switch)
+; Syntax.........: _RecFileListToArray($sPath[, $sFilter = "*"[, $iFlag = 0[, $iRecur = 0[, $iFullPath = 0]]]])
+; Parameters ....: $sPath   - Path to generate filelist for.
+;                 $sFilter - Optional the filter to use, default is *. Search the Autoit3 helpfile for the word "WildCards" For details.
+;                 $iFlag   - Optional: specifies whether to return files folders or both
+;                 |$iFlag=0 (Default) Return both files and folders
+;                 |$iFlag=1 Return files only
+;                 |$iFlag=2 Return Folders only
+;                 $iRecur  - Optional: specifies whether to search in subfolders
+;                 |$iRecur=0 (Default) Do not search in subfolders
+;                 |$iRecur=1 Search in subfolders
+;                 $iFullPath  - Optional: specifies whether to include initial path in result string
+;                 |$iFullPath=0 (Default) Do not include initial path
+;                 |$iFullPath=1 Include initial path
+; Return values .: @Error - 1 = Path not found or invalid
+;                 |2 = Invalid $sFilter
+;                 |3 = Invalid $iFlag
+;                 |4 = Invalid $iRecur
+;                 |5 = Invalid $iFullPath
+;                 |6 = No File/Folder Found
+; Author ........: SolidSnake <MetalGX91 at GMail dot com>
+; Modified.......: 22 Jan 09 by Melba23 - added recursive search and full path options
+; Remarks .......: The array returned is one-dimensional and is made up as follows:
+;                               $array[0] = Number of Files\Folders returned
+;                               $array[1] = 1st File\Folder
+;                               $array[2] = 2nd File\Folder
+;                               $array[3] = 3rd File\Folder
+;                               $array[n] = nth File\Folder
+; Related .......:
+; Link ..........;
+; Example .......; Yes
+; ====================================================================================================
+;Special Thanks to Helge and Layer for help with the $iFlag update
+; speed optimization by code65536
+;===============================================================================
+Func _RecFileListToArray($sPath, $sFilter = "*", $iFlag = 0, $iRecur = 0, $iFullPath = 0)
+    Local $asFileList[1], $sFullPath
+    If Not FileExists($sPath) Then Return SetError(1, 1, "")
+    If StringRight($sPath, 1) <> "\" Then $sPath = $sPath & "\"
+    If (StringInStr($sFilter, "\")) Or (StringInStr($sFilter, "/")) Or (StringInStr($sFilter, ":")) Or (StringInStr($sFilter, ">")) Or (StringInStr($sFilter, "<")) Or (StringInStr($sFilter, "|")) Or (StringStripWS($sFilter, 8) = "") Then Return SetError(2, 2, "")
+    If Not ($iFlag = 0 Or $iFlag = 1 Or $iFlag = 2) Then Return SetError(3, 3, "")
+    If Not ($iRecur = 0 Or $iRecur = 1) Then Return SetError(4, 4, "")
+    If $iFullPath = 0 Then
+        $sFullPath = $sPath
+    ElseIf $iFullPath = 1 Then
+        $sFullPath = ""
+    Else
+        Return SetError(5, 5, "")
+    EndIf
+    _FLTA_Search($sPath, $sFilter, $iFlag, $iRecur, $sFullPath, $asFileList)
+    If $asFileList[0] = 0 Then Return SetError(6, 6, "")
+    Return $asFileList
+EndFunc  ;==>_FileListToArray
+
+; #INTERNAL_USE_ONLY#=================================================================================
+; Name...........: _FLTA_Search
+; Description ...: Searches folder for files and then recursively searches in subfolders
+; Syntax.........: _FLTA_Search($sStartFolder, $sFilter, $iFlag, $iRecur, $sFullPath, ByRef $asFileList)
+; Parameters ....: $sStartFolder - Value passed on from UBound($avArray)
+;                 $sFilter - As set in _FileListToArray
+;                 $iFlag - As set in _FileListToArray
+;                 $iRecur - As set in _FileListToArray
+;                 $sFullPath - $sPath as set in _FileListToArray
+;                 $asFileList - Array containing found files/folders
+; Return values .: None
+; Author ........: Melba23 based on code from _FileListToArray by SolidSnake <MetalGX91 at GMail dot com>
+; Modified.......:
+; Remarks .......: This function is used internally by _FileListToArray.
+; Related .......:
+; Link ..........;
+; Example .......;
+; ====================================================================================================
+Func _FLTA_Search($sStartFolder, $sFilter, $iFlag, $iRecur, $sFullPath, ByRef $asFileList)
+
+    Local $hSearch, $sFile
+
+    If StringRight($sStartFolder, 1) <> "\" Then $sStartFolder = $sStartFolder & "\"
+; First look for filtered files/folders in folder
+    $hSearch = FileFindFirstFile($sStartFolder & $sFilter)
+    If $hSearch > 0 Then
+        While 1
+            $sFile = FileFindNextFile($hSearch)
+            If @error Then ExitLoop
+            Switch $iFlag
+                Case 0; Both files and folders
+                    If $iRecur And StringInStr(FileGetAttrib($sStartFolder & $sFile), "D") <> 0 Then ContinueLoop
+                Case 1; Files Only
+                    If StringInStr(FileGetAttrib($sStartFolder & $sFile), "D") <> 0 Then ContinueLoop
+                Case 2; Folders only
+                    If StringInStr(FileGetAttrib($sStartFolder & $sFile), "D") = 0 Then ContinueLoop
+            EndSwitch
+            If $iFlag = 1 And StringInStr(FileGetAttrib($sStartFolder & $sFile), "D") <> 0 Then ContinueLoop
+            If $iFlag = 2 And StringInStr(FileGetAttrib($sStartFolder & $sFile), "D") = 0 Then ContinueLoop
+            _FLTA_Add($asFileList, $sFullPath, $sStartFolder, $sFile)
+        WEnd
+        FileClose($hSearch)
+        ReDim $asFileList[$asFileList[0] + 1]
+    EndIf
+
+    If $iRecur = 1 Then
+    ; Now look for subfolders
+        $hSearch = FileFindFirstFile($sStartFolder & "*.*")
+        If $hSearch > 0 Then
+            While 1
+                $sFile = FileFindNextFile($hSearch)
+                If @error Then ExitLoop
+                If StringInStr(FileGetAttrib($sStartFolder & $sFile), "D") And ($sFile <> "." Or $sFile <> "..") Then
+                ; If folders needed, add subfolder to array
+                    If $iFlag <> 1 Then _FLTA_Add($asFileList, $sFullPath, $sStartFolder, $sFile)
+                ; Recursive search of this subfolder
+                    _FLTA_Search($sStartFolder & $sFile, $sFilter, $iFlag, $iRecur, $sFullPath, $asFileList)
+                EndIf
+            WEnd
+            FileClose($hSearch)
+        EndIf
+    EndIf
+
+EndFunc
+
+; #INTERNAL_USE_ONLY#=================================================================================
+; Name...........: _FLTA_Add
+; Description ...: Searches folder for files and then recursively searches in subfolders
+; Syntax.........: _FLTA_Add(ByRef $asFileList, $sFullPath, $sStartFolder, $sFile)
+; Parameters ....: $asFileList - Array containing found files/folders
+;                 $sFullPath - $sPath as set in _FileListToArray
+;                 $sStartFolder - Value passed on from UBound($avArray)
+;                 $sFile - Full path of file/folder to add to $asFileList
+; Return values .: Function only changes $asFileList ByRef
+; Author ........: Melba23 based on code from _FileListToArray by SolidSnake <MetalGX91 at GMail dot com>
+; Modified.......:
+; Remarks .......: This function is used internally by _FileListToArray.
+; Related .......:
+; Link ..........;
+; Example .......;
+; ====================================================================================================
+Func _FLTA_Add(ByRef $asFileList, $sFullPath, $sStartFolder, $sFile)
+
+    Local $sAddFolder
+
+    $asFileList[0] += 1
+    If UBound($asFileList) <= $asFileList[0] Then ReDim $asFileList[UBound($asFileList) * 2]
+    If $sFullPath = "" Then
+        $sAddFolder = $sStartFolder
+    Else
+        $sAddFolder = StringReplace($sStartFolder, $sFullPath, "")
+    EndIf
+    $asFileList[$asFileList[0]] = $sAddFolder & $sFile
+
 EndFunc
