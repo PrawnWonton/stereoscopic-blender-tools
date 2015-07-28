@@ -46,6 +46,7 @@
 ;; 1.1.6 - 1/31/2015 - Made font smaller to fit all of the render computers.
 ;; 1.2.0 - 3/19/2015 - First public release on GitHub
 ;; 1.3.0 - 7/12/2015 - Wipes out 0kb placeholders that are in placeholder subdirectories per the way 2.75 works with stereoscopic rendering
+;; 1.3.1 - 7/28/2015 - Finds out what version of Blender we're using on the local computer and writes it to a file.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -407,9 +408,10 @@ Exit
 
 Func RenderCurrent()
 	; Now figure out our filename.
-	Dim $szDrive, $szDir, $szFilename, $szExt
+	Dim $szDrive, $szDir, $szFilename, $szExt, $logFile
 	_PathSplit($originalBlenderFile, $szDrive, $szDir, $szFilename, $szExt)
 	$stereoFileDir = $szDrive & $szDir
+	$logFile = $stereoFileDir & "_logfile.txt"
 	$finalFileNameLeft = $szFilename & "-LEFT.avi"
 	$finalFileNameRight = $szFilename & "-RIGHT.avi"
 	$statusWindow = GUICreate("Rendering...", 780, 640)
@@ -453,6 +455,9 @@ Func RenderCurrent()
 	EndIf
 
 	If ($renderLeftRightPNG = 1) Then
+
+		_FileWriteLog($logFile, @ComputerName & " : Blender " & FileGetVersion($blenderEXE) & " : " & $originalBlenderFile & " : Begin rendering")
+
 		; Now run the command line and render these out.
 		$DirCmd = Run("""" & $blenderEXE & """ -b """ & $originalBlenderFile & """ -a", "c:\", @SW_SHOW, $STDOUT_CHILD+$STDERR_CHILD)
 
