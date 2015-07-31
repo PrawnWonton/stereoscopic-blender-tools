@@ -46,7 +46,8 @@
 ;; 1.1.6 - 1/31/2015 - Made font smaller to fit all of the render computers.
 ;; 1.2.0 - 3/19/2015 - First public release on GitHub
 ;; 1.3.0 - 7/12/2015 - Wipes out 0kb placeholders that are in placeholder subdirectories per the way 2.75 works with stereoscopic rendering
-;; 1.3.1 - 7/28/2015 - Finds out what version of Blender we're using on the local computer and writes it to a log file in the project directory.
+;; 1.3.1 - 7/28/2015 - Finds out what version of Blender we're using on the local computer and writes it to a log file in the project
+;;                     directory. Also grabs the product name (e.g. if it's "Better Blender" it'll pull that).
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -455,8 +456,7 @@ Func RenderCurrent()
 	EndIf
 
 	If ($renderLeftRightPNG = 1) Then
-
-		_FileWriteLog($logFile, @ComputerName & " : Blender " & FileGetVersion($blenderEXE) & " : " & $originalBlenderFile & " : Begin rendering")
+		_FileWriteLog($logFile, @ComputerName & " : " & _FileGetProperty($blenderEXE, "product name") & " & FileGetVersion($blenderEXE) & " : " & $originalBlenderFile & " : Begin rendering")
 
 		; Now run the command line and render these out.
 		$DirCmd = Run("""" & $blenderEXE & """ -b """ & $originalBlenderFile & """ -a", "c:\", @SW_SHOW, $STDOUT_CHILD+$STDERR_CHILD)
@@ -1219,3 +1219,76 @@ Func _FLTA_Add(ByRef $asFileList, $sFullPath, $sStartFolder, $sFile)
     $asFileList[$asFileList[0]] = $sAddFolder & $sFile
 
 EndFunc
+
+;===============================================================================
+; Function Name.....: _FileGetProperty
+; Description.......: Returns a property or all properties for a file.
+; Version...........: 1.0.2
+; Change Date.......: 05-16-2012
+; AutoIt Version....: 3.2.12.1+
+; Parameter(s)......: $FGP_Path - String containing the file path to return the property from.
+;                     $FGP_PROPERTY - [optional] String containing the name of the property to return. (default = "")
+;                     $iPropertyCount - [optional] The number of properties to search through for $FGP_PROPERTY, or the number of items
+;                                       returned in the array if $FGP_PROPERTY is blank. (default = 300)
+; Requirements(s)...: None
+; Return Value(s)...: Success: Returns a string containing the property value.
+;                     If $FGP_PROPERTY is blank, a two-dimensional array is returned:
+;                         $av_array[0][0] = Number of properties.
+;                         $av_array[1][0] = 1st property name.
+;                         $as_array[1][1] = 1st property value.
+;                         $av_array[n][0] = nth property name.
+;                         $as_array[n][1] = nth property value.
+;                     Failure: Returns an empty string and sets @error to:
+;                       1 = The folder $FGP_Path does not exist.
+;                       2 = The property $FGP_PROPERTY does not exist or the array could not be created.
+;                       3 = Unable to create the "Shell.Application" object $objShell.
+; Author(s).........: - Simucal <Simucal@gmail.com>
+;                     - Modified by: Sean Hart <autoit@hartmail.ca>
+;                     - Modified by: teh_hahn <sPiTsHiT@gmx.de>
+;                     - Modified by: BrewManNH
+; URL...............: http://www.autoitscript.com/forum/topic/34732-udf-getfileproperty/page__view__findpost__p__557571
+; Note(s)...........: Modified the script that teh_hahn posted at the above link to include the properties that
+;                     Vista and Win 7 include that Windows XP doesn't. Also removed the ReDims for the $av_ret array and
+;                     replaced it with a single ReDim after it has found all the properties, this should speed things up.
+;                     I further updated the code so there's a single point of return except for any errors encountered.
+;                     $iPropertyCount is now a function parameter instead of being hardcoded in the function itself.
+;===============================================================================
+Func _FileGetProperty($FGP_Path, $FGP_PROPERTY = "", $iPropertyCount = 300)
+    If $FGP_PROPERTY = Default Then $FGP_PROPERTY = ""
+    $FGP_Path = StringRegExpReplace($FGP_Path, '["'']', "") ; strip the quotes, if any from the incoming string
+    If Not FileExists($FGP_Path) Then Return SetError(1, 0, "") ; path not found
+    Local Const $objShell = ObjCreate("Shell.Application")
+    If @error Then Return SetError(3, 0, "")
+    Local Const $FGP_File = StringTrimLeft($FGP_Path, StringInStr($FGP_Path, "\", 0, -1))
+    Local Const $FGP_Dir = StringTrimRight($FGP_Path, StringLen($FGP_File) + 1)
+    Local Const $objFolder = $objShell.NameSpace($FGP_Dir)
+    Local Const $objFolderItem = $objFolder.Parsename($FGP_File)
+    Local $Return = "", $iError = 0
+    If $FGP_PROPERTY Then
+        For $I = 0 To $iPropertyCount
+            If $objFolder.GetDetailsOf($objFolder.Items, $I) = $FGP_PROPERTY Then
+                $Return = $objFolder.GetDetailsOf($objFolderItem, $I)
+            EndIf
+        Next
+        If $Return = "" Then
+            $iError = 2
+        EndIf
+    Else
+        Local $av_ret[$iPropertyCount + 1][2] = [[0]]
+        For $I = 1 To $iPropertyCount
+            If $objFolder.GetDetailsOf($objFolder.Items, $I) Then
+                $av_ret[$I][0] = $objFolder.GetDetailsOf($objFolder.Items, $I - 1)
+                $av_ret[$I][1] = $objFolder.GetDetailsOf($objFolderItem, $I - 1)
+                $av_ret[0][0] += 1
+            EndIf
+        Next
+        ReDim $av_ret[$av_ret[0][0] + 1][2]
+        If Not $av_ret[1][0] Then
+            $iError = 2
+            $av_ret = $Return
+        Else
+            $Return = $av_ret
+        EndIf
+    EndIf
+    Return SetError($iError, 0, $Return)
+EndFunc   ;==>_FileGetProperty
