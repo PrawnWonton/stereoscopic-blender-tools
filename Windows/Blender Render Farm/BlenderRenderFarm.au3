@@ -456,7 +456,7 @@ Func RenderCurrent()
 	EndIf
 
 	If ($renderLeftRightPNG = 1) Then
-		_FileWriteLog($logFile, @ComputerName & " : " & _FileGetProperty($blenderEXE, "product name") & " & FileGetVersion($blenderEXE) & " : " & $originalBlenderFile & " : Begin rendering")
+		_FileWriteLog($logFile, @ComputerName & " : " & _FileGetProperty($blenderEXE, "product name") & " : " & FileGetVersion($blenderEXE) & " : " & $originalBlenderFile & " : Begin rendering")
 
 		; Now run the command line and render these out.
 		$DirCmd = Run("""" & $blenderEXE & """ -b """ & $originalBlenderFile & """ -a", "c:\", @SW_SHOW, $STDOUT_CHILD+$STDERR_CHILD)
