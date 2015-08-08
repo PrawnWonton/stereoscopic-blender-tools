@@ -27,6 +27,8 @@
 ###############################################################################################################################################################
 # VERSION HISTORY
 # 1.0.0 - 8/1/2015 - First version.
+# 1.1.0 - 8/7/2015 - Removed automatic keyboard shortcut since I'll probably be using render layers 99% of the time instead of a composite sandwich. (The only
+#                    time a composite sandwich really makes sense is if I'm combining Cycles and Blender Internal scenes.)
 #
 ###############################################################################################################################################################
 
@@ -86,9 +88,9 @@ class NODE_EDITOR_PT_preset(bpy.types.Panel):
 
 
 class OBJECT_OT_create_sandwich(bpy.types.Operator):
-    bl_label = 'Create Sandwich (F9)'
+    bl_label = 'Create Sandwich'
     bl_idname = 'compositesandwich.create_sandwich'
-    bl_description = 'Creates the composite sandwich. Use the F9 key to automatically create a sandwich.'
+    bl_description = 'Creates the composite sandwich.'
 
     # On mouse up:
     def invoke(self, context, event):
@@ -235,13 +237,6 @@ class OBJECT_OT_create_sandwich(bpy.types.Operator):
 addon_keymaps = []
 
 def register():
-
-    # handle the keymap
-    wm = bpy.context.window_manager
-    km = wm.keyconfigs.addon.keymaps.new(name='Window', space_type='EMPTY')
-    kmi = km.keymap_items.new(OBJECT_OT_create_sandwich.bl_idname, 'F9', 'PRESS')
-    addon_keymaps.append((km, kmi))
-
     bpy.utils.register_module(__name__)
 
     bpy.types.Scene.composite_sandwich_presets = bpy.props.EnumProperty(attr="composite_preset",
@@ -257,11 +252,6 @@ def register():
         default=True)
 
 def unregister():
-    # remove keymap entry
-    for km, kmi in addon_keymaps:
-        km.keymap_items.remove(kmi)
-    addon_keymaps.clear()
-
     bpy.utils.unregister_module(__name__)
 	
 if __name__ == "__main__":
